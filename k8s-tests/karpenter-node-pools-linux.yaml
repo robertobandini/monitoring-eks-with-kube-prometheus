@@ -1,0 +1,66 @@
+apiVersion: karpenter.k8s.aws/v1
+kind: EC2NodeClass
+metadata:
+  name: service
+spec:
+  amiSelectorTerms:
+    - alias: al2023@latest
+  role: Karpenter-test-kube-prometheus
+  subnetSelectorTerms:
+    - tags:
+        karpenter.sh/discovery: test-kube-prometheus
+  securityGroupSelectorTerms:
+    - tags:
+        karpenter.sh/discovery: test-kube-prometheus
+  blockDeviceMappings:
+    - deviceName: /dev/xvda
+      ebs:
+        volumeSize: 50Gi
+        volumeType: gp3
+        iops: 10000
+        deleteOnTermination: true
+        throughput: 125   
+  tags:
+    Test: test-kube-prometheus
+    NodeGroup: service
+---
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: service
+spec:
+  template:
+    metadata:
+      labels:
+        nodegroup: "service"
+    spec:
+      nodeClassRef:
+        name: service
+        group: karpenter.k8s.aws
+        kind: EC2NodeClass
+      taints:
+        - key: type
+          value: service
+          effect: NoSchedule  
+      requirements:
+        - key: "karpenter.k8s.aws/instance-category"
+          operator: In
+          values: ["c", "m", "r"]
+        - key: "karpenter.k8s.aws/instance-cpu"
+          operator: In
+          values: ["4", "8", "16", "32"]
+        - key: "karpenter.k8s.aws/instance-hypervisor"
+          operator: In
+          values: ["nitro"]
+        - key: "karpenter.k8s.aws/instance-generation"
+          operator: Gt
+          values: ["2"]
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["on-demand"]
+  limits:
+    cpu: 500
+    memory: 500Gi
+  disruption:
+    consolidationPolicy: WhenEmpty
+    consolidateAfter: 30s

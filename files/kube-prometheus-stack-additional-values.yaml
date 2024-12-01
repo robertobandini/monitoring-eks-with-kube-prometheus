@@ -1,0 +1,54 @@
+alertmanager:
+  alertmanagerSpec:
+    tolerations:
+      - key: "type"
+        operator: "Equal"
+        value: "service"
+        effect: "NoSchedule"
+
+prometheusOperator:
+  admissionWebhooks:
+    patch:
+      tolerations:
+        - key: "type"
+          operator: "Equal"
+          value: "service"
+          effect: "NoSchedule"
+  tolerations:
+    - key: "type"
+      operator: "Equal"
+      value: "service"
+      effect: "NoSchedule"
+
+prometheus:
+  prometheusSpec:
+    tolerations:
+      - key: "type"
+        operator: "Equal"
+        value: "service"
+        effect: "NoSchedule"
+
+thanosRuler:
+  thanosRulerSpec:
+    tolerations:
+      - key: "type"
+        operator: "Equal"
+        value: "service"
+        effect: "NoSchedule"
+
+grafana:
+  tolerations:
+      - key: "type"
+        operator: "Equal"
+        value: "service"
+        effect: "NoSchedule"
+
+kube-state-metrics:
+  tolerations:
+      - key: "type"
+        operator: "Equal"
+        value: "service"
+        effect: "NoSchedule"
+
+windowsMonitoring:
+  enabled: true
